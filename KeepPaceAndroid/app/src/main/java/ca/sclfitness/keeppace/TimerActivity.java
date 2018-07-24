@@ -27,8 +27,10 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Timer;
 
 import ca.sclfitness.keeppace.Dao.RaceDao;
 import ca.sclfitness.keeppace.Dao.RecordDao;
@@ -58,6 +60,7 @@ public class TimerActivity extends AppCompatActivity {
     // timer
     private Handler handler;
     private long millisecondTime, startTime, timeBuff, updateTime = 0L;
+
     // buttons
     private Button pauseResumeBtn, saveBtn, startBtn, resetBtn;
 
@@ -88,7 +91,7 @@ public class TimerActivity extends AppCompatActivity {
             updateTime = timeBuff + millisecondTime;
             currentTimeView.setText(race.timeTextFormat(updateTime));
             //System.out.println(currentTimeView.getText());
-            handler.postDelayed(this,50);
+            handler.postDelayed(this,0);
         }
     };
 
@@ -110,7 +113,6 @@ public class TimerActivity extends AppCompatActivity {
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         int height = displayMetrics.heightPixels;
         btn_size = (int)(height * 0.2);
-
         // views
         currentTimeView = (TextView) findViewById(R.id.textView_timer_currentTime);
         estimatedTimeView = (TextView) findViewById(R.id.textView_timer_estimatedTime);
@@ -173,6 +175,24 @@ public class TimerActivity extends AppCompatActivity {
     {
         super.onDestroy();
         handler.removeCallbacks(runnable);
+    }
+
+    public void onPause()
+    {
+        super.onPause();
+        long millis = System.currentTimeMillis();
+        SharedPreferences.Editor savedTimer = getSharedPreferences("SavedTimer", MODE_PRIVATE).edit();
+        savedTimer.putLong("ms", millis);
+        savedTimer.commit();
+    }
+
+    public void onResume()
+    {
+        super.onResume();
+        SharedPreferences savedTimer = getSharedPreferences("SavedTimer", MODE_PRIVATE);
+        long savedTime = savedTimer.getLong("SavedTimer", 0);
+        long differenceTime = System.currentTimeMillis() - savedTime;
+        updateTime = updateTime + differenceTime;
     }
 
     /**
