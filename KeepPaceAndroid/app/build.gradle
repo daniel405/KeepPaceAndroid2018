@@ -7,10 +7,10 @@ android {
         applicationId "ca.sclfitness.keeppace"
         minSdkVersion 19
         targetSdkVersion 25
-        versionName '1.4'
+        versionName '1.6'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
-        versionCode 5
+        versionCode 7
     }
     buildTypes {
         release {

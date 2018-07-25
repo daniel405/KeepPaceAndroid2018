@@ -50,6 +50,8 @@ public class TimerActivity extends AppCompatActivity {
     // Finish Check
     private boolean isFinished = false;
 
+    private boolean isStarted = false;
+
     // Beat your best mode toggle
     private boolean beatTime = false;
 
@@ -87,10 +89,10 @@ public class TimerActivity extends AppCompatActivity {
     private Runnable runnable = new Runnable() {
         @Override
         public void run() {
-            millisecondTime = SystemClock.uptimeMillis() - startTime;
+            millisecondTime = SystemClock.elapsedRealtime() - startTime;
             updateTime = timeBuff + millisecondTime;
             currentTimeView.setText(race.timeTextFormat(updateTime));
-            //System.out.println(currentTimeView.getText());
+            System.out.println(currentTimeView.getText());
             handler.postDelayed(this,0);
         }
     };
@@ -108,6 +110,14 @@ public class TimerActivity extends AppCompatActivity {
         } else {
             setContentView(R.layout.activity_best_timer);
         }
+
+
+//        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+//        SharedPreferences.Editor editor = sp.edit();
+//        long millis = System.currentTimeMillis();
+//        editor.putLong("currentTime", millis);
+//        editor.commit();
+
 
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
@@ -177,23 +187,41 @@ public class TimerActivity extends AppCompatActivity {
         handler.removeCallbacks(runnable);
     }
 
-    public void onPause()
-    {
-        super.onPause();
-        long millis = System.currentTimeMillis();
-        SharedPreferences.Editor savedTimer = getSharedPreferences("SavedTimer", MODE_PRIVATE).edit();
-        savedTimer.putLong("ms", millis);
-        savedTimer.commit();
-    }
+//    public void onPause()
+////    {
+////        super.onPause();
+////        handler.removeCallbacks(runnable);
+////        long millis = System.currentTimeMillis();
+////        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+////        SharedPreferences.Editor editor = sp.edit();
+////        editor.putLong("currentTime", millis);
+////        editor.commit();
+////
+//////        long millis = System.currentTimeMillis();
+//////        System.out.println(race.timeTextFormat(millis));
+//////        SharedPreferences.Editor savedTimer = getSharedPreferences("SavedTimer", MODE_PRIVATE).edit();
+//////        savedTimer.putLong("ms", millis);
+//////        savedTimer.commit();
+////
+////    }
 
-    public void onResume()
-    {
-        super.onResume();
-        SharedPreferences savedTimer = getSharedPreferences("SavedTimer", MODE_PRIVATE);
-        long savedTime = savedTimer.getLong("SavedTimer", 0);
-        long differenceTime = System.currentTimeMillis() - savedTime;
-        updateTime = updateTime + differenceTime;
-    }
+//    public void onResume()
+//    {
+//        super.onResume();
+//        long curMillis = System.currentTimeMillis();
+//        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+//        long ot = sp.getLong("currentTime", 0); // Second parameter is the default value.
+//        long difference = curMillis - ot;
+//        handler.postDelayed(runnable, 0);
+//        updateTime = updateTime + 1000000;
+////        SharedPreferences savedTimer = getSharedPreferences("SavedTimer", MODE_PRIVATE);
+////        long savedTime = savedTimer.getLong("SavedTimer", 0);
+////        System.out.println(race.timeTextFormat(savedTime));
+////        long differenceTime = System.currentTimeMillis() - savedTime;
+////        System.out.println(race.timeTextFormat(differenceTime));
+////        updateTime = updateTime + differenceTime;
+// //       currentTimeView.setText(race.timeTextFormat(updateTime));
+//    }
 
     /**
      * Setup race object and initialize it
@@ -226,6 +254,7 @@ public class TimerActivity extends AppCompatActivity {
     private void startTimer() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         if (!isFinished) {
+            isStarted = true;
             startTime = SystemClock.uptimeMillis();
             handler.postDelayed(runnable, 0);
             startBtn.setVisibility(View.INVISIBLE);
@@ -286,6 +315,7 @@ public class TimerActivity extends AppCompatActivity {
 
     public void onClickReset(View v) {
         Intent intent = getIntent();
+        isStarted = false;
         startActivity(intent);
         finish();
     }
@@ -323,6 +353,7 @@ public class TimerActivity extends AppCompatActivity {
             pace = bd.doubleValue();
             race.setAveragePace(pace);
             isFinished = true;
+            isStarted = false;
             scrollView.setVisibility(GONE);
             pauseTimer();
         } else {
